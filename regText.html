@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body {
+            font-size: 16px;
+        }
+
+        .content {
+            width: 700px;
+            height: 400px;
+            background-color: #eeeeee;
+        }
+
+        .title {
+            text-align: center;
+            background-color: #cccccc;
+            font-size: 1.3em;
+            line-height: 2.3em;
+        }
+
+        .formContent {
+            padding-left: 20px;
+        }
+
+        input[type=text] {
+            width: 150px;
+            height: 18px;
+            margin-right: 20px;
+        }
+
+        label {
+            padding-right: 10px;
+        }
+
+        p {
+            line-height: 1.5em;
+        }
+
+        input[type=submit] {
+            box-sizing: border-box;
+            -moz-box-sizing: content-box;
+            -webkit-box-sizing: content-box;
+            -webkit-appearance: button;
+            height: 20px;
+            width: 60px;
+        }
+
+        .noSelect {
+            background-color: #dddddd
+        }
+
+        /*.resTable {*/
+        /*width: 500px;*/
+        /*}*/
+        .resTable tr td {
+            margin: 10px;
+
+        }
+
+        #result {
+            margin-top: 40px;
+            width: 700px;
+            height: 200px;
+
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="content">
+    <div class="title">正则表达式测试</div>
+    <div class="formContent">
+        <form name="tester" onsubmit="regxDeal(this);return false">
+            <p><input type="radio" name="options" id="find" value="find" checked
+                      onClick="changeDisplay(this.value)"><label>查找</label>
+                <input type="radio" name="options" id="replace" value="replace"
+                       onClick="changeDisplay(this.value)"><label>替换</label>
+                <input type="checkbox" name="flags" value="i" checked><label>忽略大小写</label>
+                <input type="checkbox" name="flags" value="g" checked><label>全局</label>
+            </p>
+            <p><span>正则表达式：</span><input type="text" name="regStr">
+                <span>替换正则表达式：</span><input class="noSelect" disabled type="text" id="replaceRegStr"
+                                            name="replaceRegStr"></p>
+            <p><span>内容：</span></p>
+            <p><textarea wrap="off" cols="75" rows="8" name="searchText"></textarea></p>
+            <input type="submit" value="验证">
+        </form>
+    </div>
+    <div id="result"></div>
+</div>
+
+
+<script>
+    function changeDisplay(id) {
+        let unId = (id === 'find' ? 'replace' : 'find');
+        let replace = document.getElementById('replaceRegStr');
+        if (id === 'find') {
+            replace.disabled = true;
+            replace.style = 'background-color:#dddddd'
+        } else {
+            replace.disabled = false;
+            replace.style = 'background-color:white'
+
+        }
+    }
+
+    function regxDeal(form) {
+
+        let flags = getFlags(form.flags);
+        let res;
+        if (form.options[0].checked) {
+            res = regexFind(form.searchText.value, form.regStr.value, flags)
+        } else {
+            res = regReplace(form.searchText.value, form.regStr.value, form.replaceRegStr.value, flags)
+        }
+        document.getElementById('result').innerHTML = res;
+    }
+
+    function getFlags(checkboxs) {
+        let flags = "";
+        checkboxs.forEach(item => {
+            if (item.checked) {
+                flags += item.value
+            }
+        });
+        return flags
+    }
+
+    /**
+     * 正则查找
+     *  text    原文
+     *  regx    正则查找规则
+     *  flags   标志[gim]
+     */
+
+    function regexFind(text, regx, flags) {
+        console.log(text, regx, flags)
+        let lastIndex = -1;//记录exec执行位置
+        let arr = [];//存放所有匹配项
+        let reg = new RegExp(regx, flags);
+        while (lastIndex !== 0) {
+            let res = reg.exec(text);
+            if (reg.lastIndex !== 0) {//过滤最后一个null
+                arr.push(res)
+            }
+
+            lastIndex = reg.lastIndex;
+        }
+        return resultFormat(arr);
+    }
+
+    /**
+     * 正则替换
+     *  text        原文
+     *  regx        正则查找规则
+     *  replaceStr  正则替换规则
+     *  flags       标志（gim）
+     * */
+    function regReplace(text, regx, replaceStr, flags) {
+        var reg = new RegExp(regx, flags);
+        console.log(regx, replaceStr)
+        let res = text.replace(reg, replaceStr);
+        return replaceFormat(res);
+    }
+
+    function resultFormat(arr) {
+        let arrLength = arr.length;
+        if (arrLength === 0) return '没有匹配项';
+
+        let formatStr = '匹配个数: ' + arrLength + '<br>' +
+            '<table BORDER="0" CELLPADDING="2" CELLSPACING="0" WIDTH="700">' +
+            '<tr style="text-align: center;background-color: lightblue"><td width="40px">序号</td><td width="*">匹配项</td><td width="40px">位置</td><td width="40px">长度</td></tr>'
+
+        for (let i = 0; i < arr.length; i++) {
+            formatStr += '<tr><td >' + (i + 1) + '</td><td>' +
+                arr[i][0] + '</td><td>' +
+                arr[i].index + '</td><td>' +
+                arr[i][0].length + '</td></tr>';
+        }
+        formatStr += '</table>';
+        return formatStr;
+    }
+
+    function replaceFormat(res) {
+        let formatStr =
+            '<table BORDER="0" CELLPADDING="2" CELLSPACING="0" WIDTH="700">'
+            + '<tr style="background-color: lightblue"><td>替换后内容</td></tr>'
+            + '<tr style="background-color: #eeeeee"><td>' + res + '</td></tr>' +
+            '</table>';
+        return formatStr;
+    }
+</script>
+</body>
+</html>
