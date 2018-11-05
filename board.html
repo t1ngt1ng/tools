@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>简易画板</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: 0 auto;
+        }
+
+
+    </style>
+</head>
+<body>
+<div>
+    <canvas id="canvas" width="1000" height="600"></canvas>
+</div>
+<script>
+    /**
+     * 本代码参考了《html5+javascript动画基础》的代码
+     * */
+    window.onload = function () {
+        var canvas = document.getElementById('canvas'),
+            context = canvas.getContext('2d'),
+            mouse = captureMouse(canvas);
+
+        function onMouseMove() {
+            context.lineTo(mouse.x, mouse.y);
+            context.stroke();
+        }
+
+        canvas.addEventListener('mousedown', function () {
+            context.beginPath();
+            context.moveTo(mouse.x, mouse.y);
+            canvas.addEventListener('mousemove', onMouseMove, false)
+        })
+        canvas.addEventListener('mouseup', function () {
+            canvas.removeEventListener('mousemove', onMouseMove, false)
+        })
+    }
+
+    function captureMouse(element) {
+        let mouse = {x: 0, y: 0, event: null},
+            body_scrollLeft = document.body.scrollLeft,
+            body_scrollTop = document.body.scrollTop,
+            element_scrollLeft = document.documentElement.scrollLeft,
+            element_scrollTop = document.documentElement.scrollTop,
+            offsetLeft = element.offsetLeft,
+            offsetTop = element.offsetTop;
+        element.addEventListener('mousemove', function (event) {
+            let x, y;
+
+            if (event.pageX || event.pageY) {
+                x = event.pageX;
+                y = event.pageY;
+            } else {
+
+                x = event.clientX + (body_scrollLeft || element_scrollLeft);
+                y = event.clientY + (body_scrollTop || element_scrollTop);
+            }
+            x -= offsetLeft;
+            y -= offsetTop;
+
+            mouse.x = x;
+            mouse.y = y;
+        }, false);
+        return mouse;
+    }
+</script>
+</body>
+</html>
