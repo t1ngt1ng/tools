@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>十六进制和rgb转换</title>
+    <style>
+        #container {
+            border: 1px solid black;
+            width: 70vw;
+            height: 40vw;
+            display: flex;
+            align-items: center;
+            vertical-align: middle;
+        }
+
+        .content {
+            /*border: 1px solid black;*/
+            /*height: 26vw;*/
+            width: 100%;
+        }
+
+        span {
+            display: block;
+            width: 100px;
+            height: 100px;
+            border: 1px solid black;
+            margin: auto;
+        }
+
+        input {
+            margin-top: 20px;
+        }
+
+        input[type=submit] {
+            box-sizing: border-box;
+            -moz-box-sizing: content-box;
+            -webkit-box-sizing: content-box;
+            -webkit-appearance: button;
+            height: 30px;
+            width: 60px;
+            border-radius: 10px;
+        }
+
+        label:before {
+            content: '\a';
+            white-space: pre;
+        }
+
+        #result {
+            height: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <div class="content">
+        <span id="colorBox"></span>
+        <center>
+            <form onsubmit="convert(this);return false">
+                <label>十六进制:</label><input type="text" id="hex">
+                <label> RGB值:</label> <input type="text" id="rgb">
+                <label for=""></label>
+                <input type="submit" value="转换">
+            </form>
+
+            <div id="result"></div>
+        </center>
+    </div>
+</div>
+
+<script>
+    /**
+     * 实在想不出像样的名字了。。
+     * 2018-11=6 未完
+     * */
+    window.onload = function () {
+
+        let hex = document.getElementById('hex'),
+            rgb = document.getElementById('rgb'),
+            colorBox = document.getElementById('colorBox'),
+            result = document.getElementById('result'),
+            form = document.getElementsByTagName('form')[0],
+            color = null;
+
+        form.addEventListener('keyup', function (event) {
+            if (hex.value) {
+                console.log(1)
+                hex.value[0] === '#' ? (color = hex.value) : (color = '#' + hex.value);
+            }
+            if (rgb.value) {
+                rgb.value[0] === 'r' ? (color = rgb.value) : (color = 'rgb(' + rgb.value + ')');
+            }
+            colorBox.style.background = color;
+        });
+        hex.addEventListener('blur', function (event) {
+            if (!hex.value) colorBox.style.background = '#ffffff';
+        })
+
+
+    }
+
+    function convert() {
+        let hex = document.getElementById('hex'),
+            rgb = document.getElementById('rgb'),
+            result = document.getElementById('result'),
+            convert = '请检查输入值';
+        console.log(hex.value)
+        hex.value ? convert = colorToRGB(hex.value) : (rgb.value ? convert = RGBToHex(rgb.value) : 0)
+
+        result.innerHTML = convert
+
+    }
+
+
+    function colorToRGB(color) {
+        //如果是字符串转换为数字 #999999->999999
+        let result;
+
+        if (typeof color === 'string' && color[0] === '#') {
+            color = parseInt(color.slice(1), 16);
+        } else {
+            color = parseInt(('0x' + color), 16)
+        }
+        console.log(color)
+
+        let r = color >> 16 & 0xff,
+            g = color >> 8 & 0xff,
+            b = color & 0xff;
+
+        result = 'rgb(' + r + ',' + g + ',' + b + ')';
+        return result;
+    }
+
+
+    function RGBToHex(rgb) {
+        let result;
+        if (rgb[0] === 'r') {
+            let num = rgb.substring(4, rgb.length - 1).split(',')
+        }
+    }
+
+</script>
+
+
+</body>
+</html>
