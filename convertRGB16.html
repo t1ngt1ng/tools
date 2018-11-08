@@ -73,20 +73,18 @@
 <script>
     /**
      * 实在想不出像样的名字了。。
-     * 2018-11=6 未完
+     * 功能就是rgb与#十六进制形式的互相转换
      * */
     window.onload = function () {
 
         let hex = document.getElementById('hex'),
             rgb = document.getElementById('rgb'),
             colorBox = document.getElementById('colorBox'),
-            result = document.getElementById('result'),
             form = document.getElementsByTagName('form')[0],
             color = null;
-
+        //键盘抬起改变方块颜色
         form.addEventListener('keyup', function (event) {
             if (hex.value) {
-                console.log(1)
                 hex.value[0] === '#' ? (color = hex.value) : (color = '#' + hex.value);
             }
             if (rgb.value) {
@@ -94,36 +92,38 @@
             }
             colorBox.style.background = color;
         });
+        //失去焦点如果输入框没有值将方块变白
         hex.addEventListener('blur', function (event) {
             if (!hex.value) colorBox.style.background = '#ffffff';
         })
+        rgb.addEventListener('blur', function (event) {
+            if (!rgb.value) colorBox.style.background = '#ffffff';
+        })
 
 
-    }
-
+    };
+    //转换方法
     function convert() {
         let hex = document.getElementById('hex'),
             rgb = document.getElementById('rgb'),
             result = document.getElementById('result'),
             convert = '请检查输入值';
-        console.log(hex.value)
-        hex.value ? convert = colorToRGB(hex.value) : (rgb.value ? convert = RGBToHex(rgb.value) : 0)
 
+        //有rgb就调用转hex方法，有hex就调用转rgb方法
+        hex.value ? convert = colorToRGB(hex.value) : (rgb.value ? convert = RGBToHex(rgb.value) : 0)
         result.innerHTML = convert
 
     }
 
-
+    //将十六进制转换为rgb
     function colorToRGB(color) {
-        //如果是字符串转换为数字 #999999->999999
-        let result;
 
+        let result;
         if (typeof color === 'string' && color[0] === '#') {
             color = parseInt(color.slice(1), 16);
         } else {
             color = parseInt(('0x' + color), 16)
         }
-        console.log(color)
 
         let r = color >> 16 & 0xff,
             g = color >> 8 & 0xff,
@@ -133,14 +133,26 @@
         return result;
     }
 
-
+    //将rgb转换为十六进制
     function RGBToHex(rgb) {
-        let result;
+        let num;
         if (rgb[0] === 'r') {
-            let num = rgb.substring(4, rgb.length - 1).split(',')
+            num = rgb.substring(4, rgb.length - 1).split(',')
         }
+
+        return "#" + toHex(num[0]) + toHex(num[1]) + toHex(num[2]);//输出FF
     }
 
+
+    function toHex(number) {
+
+        number = parseInt(number).toString(16)
+        if (number.length === 1) {
+            number = '0' + number;
+        }
+
+        return number;
+    }
 </script>
 
 
