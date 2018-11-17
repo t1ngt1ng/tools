@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="util.js"></script>
+    <style>
+        body {
+            background-color: #dddddd;
+        }
+
+        #canvas {
+            position: absolute;
+            left: 0px;
+            top: 20px;
+            margin: 20px;
+            background-color: #fff;
+            /*border: thin inset rgba(100, 150, 230, 0.5);*/
+            border: 1px inset rgba(100, 150, 230, 0.5);
+            cursor: pointer;
+        }
+
+        #readout {
+            margin-top: 10px;
+            margin-left: 15px;
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+<div id="readout"></div>
+<canvas id="canvas" width="500" height="350"></canvas>
+<script>
+    let canvas = document.getElementById('canvas'),
+        context = canvas.getContext('2d'),
+        readout = document.getElementById('readout'),
+        spritesheet = new Image();
+
+    function windwoToCanvas(canvas, x, y) {
+        var bbox = canvas.getBoundingClientRect();
+        console.log(document.body.scrollTop, bbox.top * (canvas.height / bbox.height))
+        return {
+            x: x - bbox.left * (canvas.width / bbox.width),
+            y: y - bbox.top * (canvas.height / bbox.height)
+        }
+    }
+
+    function drawBackground() {
+        var vertical_line_spacing = 12,
+            i = context.canvas.height;
+
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.strokeStyle = 'lightgray';
+        context.lineWidth = 0.5;
+
+        while (i > vertical_line_spacing * 4) {
+            context.beginPath();
+            context.moveTo(0, i);
+            context.lineTo(context.canvas.width, i);
+            context.stroke();
+            i -= vertical_line_spacing;
+        }
+    }
+
+    function drawSpritesheet() {
+        context.drawImage(spritesheet, 0, 0);
+    }
+
+    function drawGuidelines(x, y) {
+        context.strokeStyle = 'rgba(0,0,230,0.8)';
+        context.lineWidth = 0.5;
+        drawVertialLine(x);
+        drawHorizontailLine(y);
+    }
+
+    function updateReadout(x, y) {
+        readout.innerText = "(" + x.toFixed(0) + ',' + y.toFixed(0) + ')';
+    }
+
+    function drawHorizontailLine(y) {
+        context.beginPath();
+        context.moveTo(0, y + 0.5);
+        context.lineTo(context.canvas.width, y + 0.5);
+        context.stroke();
+    }
+
+    function drawVertialLine(x) {
+        context.beginPath();
+        context.moveTo(x + 0.5, 0);
+        context.lineTo(x + 0.5, canvas.height);
+        context.stroke();
+    }
+
+    canvas.onmousemove = function (e) {
+        console.log(e.clientX, e.clientY, e.pageX, e.pageY);
+        /*
+        * 这个地方也可以用utils.captureMouse获取鼠标位置，一样的，就是需要将方法里的监听事件去掉
+        * */
+//        var loc = utils.captureMouse(canvas);
+
+        var loc = windwoToCanvas(canvas, e.clientX, e.clientY);
+
+        drawBackground();
+        drawSpritesheet();
+        drawGuidelines(loc.x, loc.y);
+        updateReadout(loc.x, loc.y);
+    }
+
+    spritesheet.src = '1.jpg';//图片来自网络
+    spritesheet.onload = function (e) {
+        drawSpritesheet()
+    };
+    drawBackground()
+</script>
+</body>
+</html>
