@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>写字</title>
+    <style>
+        canvas {
+            border: medium solid rgb(255, 99, 11);
+        }
+
+        #clear-btn {
+            display: inline-block;
+            text-align: center;
+            vertical-align: middle;
+            width: 40px;
+            height: 22px;
+            border: thin solid rgb(200, 200, 200);
+            padding: 3px 5px;
+            border-radius: 10px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 20px;
+        }
+
+        ul li {
+            display: inline-block;
+        }
+
+        .colorBtn {
+            color: brown;
+            border: thin solid black;
+            width: 30px;
+            height: 30px;
+        }
+
+        .selectBtn {
+            border: medium solid brown;
+        }
+
+        #redBtn {
+            background-color: red;
+
+        }
+
+        #blackBtn {
+            background-color: black;
+        }
+
+        #yellowBtn {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="canvas" width="400" height="400"></canvas>
+<div id="clear-btn">清除</div>
+<ul>
+    <li id="blackBtn" class="colorBtn selectBtn"></li>
+    <li id="redBtn" class="colorBtn"></li>
+    <li id="yellowBtn" class="colorBtn"></li>
+
+
+</ul>
+<script>
+    var canvas = document.getElementById('canvas'),
+        context = canvas.getContext('2d'),
+        btn = document.getElementById('clear-btn'),
+        ul = document.getElementsByTagName('ul')[0],
+        colorBtns = document.getElementsByClassName('colorBtn'),
+        mouse = captureMouse(canvas),
+        ismouseDown = false,
+        lastx, lasty, lastTime,
+        maxLine = 20,
+        fontColor = '#000000',
+        canvasWidth = Math.min(400, document.body.clientWidth - 20);
+
+    canvas.width = canvas.height = canvasWidth;
+
+    ul.style.width = canvasWidth + 'px';
+
+    drawLine();
+
+    ul.addEventListener('click', function (e) {
+        console.log(e.target.nodeName)
+        if (e.target.nodeName === 'LI') {
+
+            for (let el of colorBtns) {
+                el.classList.remove('selectBtn')
+            }
+            e.target.classList.add('selectBtn')
+            fontColor = window.getComputedStyle(e.target).backgroundColor;
+        }
+
+    }, false);
+
+    btn.addEventListener('click', function (e) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        drawLine();
+    }, false);
+
+    function mouseDown(type) {
+        ismouseDown = true;
+        if (type === 'mouse') {
+            lastx = mouse.x;
+            lasty = mouse.y;
+        }
+
+        console.log(lastx, lasty);
+        lastTime = new Date().getTime();
+    }
+
+    canvas.onmousedown = function (e) {
+
+        e.preventDefault();//阻止默认事件相应，pc端作用不大
+        console.log('onmousedown');
+        mouseDown('mouse');
+
+    }
+    canvas.onmouseup = function (e) {
+        ismouseDown = false;
+        e.preventDefault();
+        console.log('onmouseup');
+
+    }
+    canvas.onmouseout = function (e) {
+        ismouseDown = false;
+        e.preventDefault();
+        console.log('onmouseout');
+
+    }
+    canvas.onmousemove = function (e) {
+        e.preventDefault();
+        if (ismouseDown) {
+            console.log('onmousemove');
+            onMouseMove(mouse.x, mouse.y);
+        }
+    };
+
+    function onMouseMove(x, y) {
+        let time = new Date().getTime(),
+            vx = mouse.x - lastx,
+            vy = mouse.y - lasty,
+            dist = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2));
+
+        context.strokeStyle = fontColor;
+        context.lineWidth = lineWidth(dist, time - lastTime);
+
+        context.beginPath();
+        context.moveTo(lastx, lasty);
+        context.lineTo(x, y);
+        context.lineCap = 'round';
+        context.lineJoin = 'round';
+        context.stroke();
+        lastx = x;
+        lasty = y;
+        lastTime = time;
+    }
+
+    function lineWidth(dist, vtime) {
+
+        let speed = (dist / vtime);
+        if (speed <= 0.1) {
+            return maxLine;
+        } else if (speed >= 10) {
+            return 1;
+        } else {
+            return maxLine - (speed - 0.1) / (10 - 0.1) * (maxLine - 1);
+        }
+    }
+
+
+    function drawLine() {
+        context.beginPath();
+        context.strokeStyle = 'rgb(255, 99, 11)';
+        context.lineWidth = 1;
+        context.moveTo(0, 0);
+        context.lineTo(canvas.width, canvas.height);
+        context.moveTo(0, canvas.width);
+        context.lineTo(canvas.height, 0);
+        context.moveTo(0, canvas.width / 2);
+        context.lineTo(canvas.height, canvas.width / 2);
+        context.moveTo(canvas.width / 2, 0);
+        context.lineTo(canvas.height / 2, canvas.height);
+        context.stroke();
+    }
+
+    function captureMouse(element) {
+        let mouse = {x: 0, y: 0, event: null},
+            body_scrollLeft = document.body.scrollLeft,
+            body_scrollTop = document.body.scrollTop,
+            element_scrollLeft = document.documentElement.scrollLeft,
+            element_scrollTop = document.documentElement.scrollTop,
+            offsetLeft = element.offsetLeft,
+            offsetTop = element.offsetTop;
+        element.addEventListener('mousemove', function (event) {
+            let x, y;
+            // console.log(body_scrollLeft, body_scrollTop, element_scrollLeft, element_scrollTop)
+
+            if (event.pageX || event.pageY) {
+                x = event.pageX;
+                y = event.pageY;
+            } else {
+
+                x = event.clientX + (body_scrollLeft || element_scrollLeft);
+                y = event.clientY + (body_scrollTop || element_scrollTop);
+            }
+            x -= offsetLeft;
+            y -= offsetTop;
+
+            mouse.x = x;
+            mouse.y = y;
+        }, false);
+        return mouse;
+    }
+</script>
+
+</body>
+</html>

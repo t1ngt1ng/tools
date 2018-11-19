@@ -17,3 +17,6 @@
 
 - getSpritePositon.html   
  获取sprite图中的宽高，把图片换成自己想获取位置的就行了
+ 
+ - writeWord.html   
+ 米字格可写字，仿照慕课网学写一个字，不使用jquery，参考思路，代码不完全一致
