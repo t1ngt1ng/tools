@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1.0,user-scalable=no">
     <title>写字</title>
     <style>
         canvas {
@@ -54,7 +56,6 @@
     </style>
 </head>
 <body>
-
 <canvas id="canvas" width="400" height="400"></canvas>
 <div id="clear-btn">清除</div>
 <ul>
@@ -70,7 +71,6 @@
         btn = document.getElementById('clear-btn'),
         ul = document.getElementsByTagName('ul')[0],
         colorBtns = document.getElementsByClassName('colorBtn'),
-        mouse = captureMouse(canvas),
         ismouseDown = false,
         lastx, lasty, lastTime,
         maxLine = 20,
@@ -80,11 +80,8 @@
     canvas.width = canvas.height = canvasWidth;
 
     ul.style.width = canvasWidth + 'px';
-
     drawLine();
-
     ul.addEventListener('click', function (e) {
-        console.log(e.target.nodeName)
         if (e.target.nodeName === 'LI') {
 
             for (let el of colorBtns) {
@@ -101,53 +98,65 @@
         drawLine();
     }, false);
 
-    function mouseDown(type) {
+    function mouseDown(e, type) {
         ismouseDown = true;
-        if (type === 'mouse') {
-            lastx = mouse.x;
-            lasty = mouse.y;
-        }
+        let position = capturePosition(canvas, e, type);
+        lastx = position.x;
+        lasty = position.y;
 
-        console.log(lastx, lasty);
         lastTime = new Date().getTime();
     }
 
     canvas.onmousedown = function (e) {
 
         e.preventDefault();//阻止默认事件相应，pc端作用不大
-        console.log('onmousedown');
-        mouseDown('mouse');
+        mouseDown(e);
 
     }
     canvas.onmouseup = function (e) {
         ismouseDown = false;
         e.preventDefault();
-        console.log('onmouseup');
+    };
 
-    }
     canvas.onmouseout = function (e) {
         ismouseDown = false;
         e.preventDefault();
-        console.log('onmouseout');
+    };
 
-    }
     canvas.onmousemove = function (e) {
         e.preventDefault();
         if (ismouseDown) {
-            console.log('onmousemove');
-            onMouseMove(mouse.x, mouse.y);
+            let position = capturePosition(canvas, event);
+            onMouseMove(position.x, position.y);
         }
     };
 
+    canvas.addEventListener('touchstart', function (event) {
+        event.preventDefault();
+        mouseDown(event, 'touch')
+    });
+    canvas.addEventListener('touchmove', function (e) {
+        e.preventDefault();
+        if (ismouseDown) {
+            let position = capturePosition(canvas, event,'touch');
+            onMouseMove(position.x, position.y);
+        }
+    });
+    canvas.addEventListener('touchend', function (e) {
+        e.preventDefault();
+        ismouseDown = false;
+    });
+
     function onMouseMove(x, y) {
         let time = new Date().getTime(),
-            vx = mouse.x - lastx,
-            vy = mouse.y - lasty,
+
+            vx = x - lastx,
+            vy = y - lasty,
             dist = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2));
+
 
         context.strokeStyle = fontColor;
         context.lineWidth = lineWidth(dist, time - lastTime);
-
         context.beginPath();
         context.moveTo(lastx, lasty);
         context.lineTo(x, y);
@@ -162,6 +171,7 @@
     function lineWidth(dist, vtime) {
 
         let speed = (dist / vtime);
+
         if (speed <= 0.1) {
             return maxLine;
         } else if (speed >= 10) {
@@ -187,35 +197,38 @@
         context.stroke();
     }
 
-    function captureMouse(element) {
-        let mouse = {x: 0, y: 0, event: null},
+
+    function capturePosition(element, event, type = 'mouse') {
+        let position = {x: 0, y: 0, event: null},
             body_scrollLeft = document.body.scrollLeft,
             body_scrollTop = document.body.scrollTop,
             element_scrollLeft = document.documentElement.scrollLeft,
             element_scrollTop = document.documentElement.scrollTop,
             offsetLeft = element.offsetLeft,
             offsetTop = element.offsetTop;
-        element.addEventListener('mousemove', function (event) {
-            let x, y;
-            // console.log(body_scrollLeft, body_scrollTop, element_scrollLeft, element_scrollTop)
+        let x, y;
 
-            if (event.pageX || event.pageY) {
-                x = event.pageX;
-                y = event.pageY;
-            } else {
+        type === 'touch' ? event = event.touches[0] : null;
 
-                x = event.clientX + (body_scrollLeft || element_scrollLeft);
-                y = event.clientY + (body_scrollTop || element_scrollTop);
-            }
-            x -= offsetLeft;
-            y -= offsetTop;
+        if (event.pageX || event.pageY) {
+            x = event.pageX;
+            y = event.pageY;
+        } else {
 
-            mouse.x = x;
-            mouse.y = y;
-        }, false);
-        return mouse;
+            x = event.clientX + (body_scrollLeft || element_scrollLeft);
+            y = event.clientY + (body_scrollTop || element_scrollTop);
+        }
+        x -= offsetLeft;
+        y -= offsetTop;
+
+        position.x = x;
+        position.y = y;
+
+        return position;
+
     }
-</script>
 
+
+</script>
 </body>
 </html>
