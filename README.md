@@ -20,3 +20,6 @@
  
  - writeWord.html   
  米字格可写字，仿照慕课网学写一个字，不使用jquery，参考思路，代码不完全一致
+ 
+ - imageScale.html  
+ 图片缩放，参考慕课思路

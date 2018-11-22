@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body {
+            background-color: #000;
+        }
+
+        canvas {
+            border: 1px solid #cccccc;
+            display: block;
+            margin: 30px auto;
+        }
+
+        input[type='range'] {
+            display: block;
+            margin: 10px auto;
+            width: 400px;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas" width="800" height="500"></canvas>
+<input id="slider" type="range" min="0.5" max="2.0" value="1.0" step="0.01">
+<script>
+    let canvas = document.getElementById('canvas'),
+        context = canvas.getContext('2d'),
+        slider = document.getElementById('slider'),
+        image = new Image();
+
+    window.onload = function () {
+        image.src = '2.jpg';
+        image.onload = function () {
+            let scale = slider.value;
+            drawImageByScale(scale);
+            window.onmousemove = function () {
+                scale = slider.value;
+                drawImageByScale(scale);
+            }
+        }
+    }
+
+    function drawImageByScale(scale) {
+        let scaleWidth = canvas.width * scale,
+            scaleHeight = canvas.height * scale,
+            dx = (canvas.width - scaleWidth) / 2,
+            dy = (canvas.height - scaleHeight) / 2;
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(image, dx, dy, scaleWidth, scaleHeight);
+
+    }
+
+</script>
+</body>
+</html>
