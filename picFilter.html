@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>简单图片滤镜</title>
+</head>
+<style>
+    * {
+        padding: 0;
+        margin: 0;
+    }
+
+    #canvas {
+        display: block;
+        border: 1px solid #ccc;
+        margin: 17px auto;
+    }
+
+    ul > li {
+        list-style: none;
+        /*display: block;*/
+        width: 20px;
+        height: 30px;
+        float: left;
+
+    }
+
+    .canvasList > li {
+        margin: 0px 30px;
+    }
+
+    .canvasList > li > img {
+        width: 60px;
+        height: 60px;
+        border: 1px solid #ccc;
+    }
+</style>
+<body>
+
+<canvas id="canvas"></canvas>
+<canvas id="canvasHidden" style="display: none"></canvas>
+
+<ul class="canvasList">
+    <li>
+        <canvas id="mini" width="60px" height="60px"></canvas>
+    </li>
+    <li>
+        <canvas id="grey" width="60px" height="60px"></canvas>
+
+    </li>
+    <li>
+        <canvas id="black" width="60px" height="60px"></canvas>
+    </li>
+    <li>
+        <canvas id="reverse" width="60px" height="60px"></canvas>
+
+    </li>
+    <li>
+        <canvas id="blur" width="60px" height="60px"></canvas>
+
+    </li>
+    <li>
+        <canvas id="mosaic" width="60px" height="60px"></canvas>
+    </li>
+</ul>
+</body>
+
+<script>
+    var canvas = document.getElementById('canvas'),
+        context = canvas.getContext('2d'),
+        hidden = document.getElementById('canvasHidden'),
+        hiddenContext = hidden.getContext('2d'),
+        mini = document.getElementById('mini'),
+        miniContext = mini.getContext('2d'),
+        grey = document.getElementById('grey'),
+        black = document.getElementById('black'),
+        reverse = document.getElementById('reverse'),
+        blur = document.getElementById('blur'),
+        mosaic = document.getElementById('mosaic'),
+        image = new Image(),
+        miniImage = new Image();
+
+    canvas.width = hidden.width = 1180;
+    canvas.height = hidden.height = 700;
+
+    window.onload = function () {
+        image.src = '2.jpg';
+        image.onload = function () {
+            console.log('hiden', hidden)
+            hiddenContext.drawImage(image, 0, 0, hidden.width, hidden.height);
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+            miniContext.drawImage(image, 0, 0, image.width, image.height, 0, 0, mini.width, mini.height);
+            miniImage = mini.toDataURL();
+
+            showFilter();
+
+
+        }
+
+        //显示小图
+        function showFilter() {
+            greyFilter(mini, grey);
+            blackFilter(mini, black);
+            reverseFilter(mini, reverse);
+            blurFilter(mini, blur, 1);
+            mosaicFilter(mini, mosaic, 3);
+        }
+
+        //添加事件监听
+        mini.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        });
+        grey.addEventListener('click', function (e) {
+            e.preventDefault();
+            greyFilter(hidden, canvas);
+        });
+        black.addEventListener('click', function (e) {
+            e.preventDefault()
+            blackFilter(hidden, canvas);
+        });
+        reverse.addEventListener('click', function (e) {
+            e.preventDefault();
+            reverseFilter(hidden, canvas);
+        });
+        blur.addEventListener('click', function (e) {
+            e.preventDefault();
+            blurFilter(hidden, canvas);
+        });
+        mosaic.addEventListener('click', function (e) {
+            e.preventDefault();
+            mosaicFilter(hidden, canvas);
+        });
+
+    };
+
+    //灰度滤镜
+    function greyFilter(orignCanvas, imageCanvas) {
+        let imageContext = imageCanvas.getContext('2d'),
+            orginContext = orignCanvas.getContext('2d');
+
+        let imageData = orginContext.getImageData(0, 0, orignCanvas.width, orignCanvas.height),
+            pixelData = imageData.data;
+        for (let i = 0; i < orignCanvas.width * orignCanvas.height; i++) {
+
+            let r = pixelData[4 * i + 0],
+                g = pixelData[4 * i + 1],
+                b = pixelData[4 * i + 2];
+
+            var grey = r * 0.3 + g * 0.59 + b * 0.11;
+
+            pixelData[4 * i + 0] = pixelData[4 * i + 1] = pixelData[4 * i + 2] = grey;
+        }
+
+        imageContext.putImageData(imageData, 0, 0, 0, 0, imageCanvas.width, imageCanvas.height);
+    }
+
+    //黑白滤镜
+    function blackFilter(orignCanvas, imageCanvas) {
+        let imageContext = imageCanvas.getContext('2d'),
+            orginContext = orignCanvas.getContext('2d');
+
+        let imageData = orginContext.getImageData(0, 0, orignCanvas.width, orignCanvas.height),
+            pixelData = imageData.data;
+
+        for (let i = 0; i < orignCanvas.width * orignCanvas.height; i++) {
+
+            let r = pixelData[4 * i + 0],
+                g = pixelData[4 * i + 1],
+                b = pixelData[4 * i + 2],
+                v;
+
+            var grey = r * 0.3 + g * 0.59 + b * 0.11;
+            grey > 255 / 2 ? v = 255 : v = 0;
+
+            pixelData[4 * i + 0] = pixelData[4 * i + 1] = pixelData[4 * i + 2] = v;
+        }
+
+        imageContext.putImageData(imageData, 0, 0, 0, 0, imageCanvas.width, imageCanvas.height);
+    }
+
+    //反向滤镜
+    function reverseFilter(orignCanvas, imageCanvas) {
+        let imageContext = imageCanvas.getContext('2d'),
+            orginContext = orignCanvas.getContext('2d');
+
+        let imageData = orginContext.getImageData(0, 0, orignCanvas.width, orignCanvas.height),
+            pixelData = imageData.data;
+
+        for (let i = 0; i < orignCanvas.width * orignCanvas.height; i++) {
+
+            pixelData[4 * i + 0] = 255 - pixelData[4 * i + 0],
+                pixelData[4 * i + 1] = 255 - pixelData[4 * i + 1],
+                pixelData[4 * i + 2] = 255 - pixelData[4 * i + 2];
+
+        }
+        imageContext.putImageData(imageData, 0, 0, 0, 0, imageCanvas.width, imageCanvas.height);
+    }
+
+    //模糊滤镜
+    function blurFilter(orignCanvas, imageCanvas, blurR = 3) {
+        let
+            imageContext = imageCanvas.getContext('2d'),
+            orginContext = orignCanvas.getContext('2d');
+        let
+            imageData = orginContext.getImageData(0, 0, orignCanvas.width, orignCanvas.height),
+            pixelData = imageData.data,
+            tempImageData = orginContext.getImageData(0, 0, orignCanvas.width, orignCanvas.height),
+            tmpPixelData = tempImageData.data,
+            toalnum = Math.pow((2 * blurR) + 1, 2);
+
+        for (let i = blurR; i < orignCanvas.height - blurR; i++) {
+            for (let j = blurR; j < orignCanvas.width - blurR; j++) {
+                let totalr = totalg = totalb = 0;
+                for (let dx = -blurR; dx <= blurR; dx++) {
+                    for (let dy = -blurR; dy <= blurR; dy++) {
+
+                        let x = i + dx, y = j + dy;
+                        let p = x * orignCanvas.width + y;
+                        totalr += tmpPixelData[p * 4 + 0];
+                        totalg += tmpPixelData[p * 4 + 1];
+                        totalb += tmpPixelData[p * 4 + 2];
+
+                    }
+
+                }
+
+                let p = i * orignCanvas.width + j;
+                pixelData[p * 4 + 0] = totalr / toalnum;
+                pixelData[p * 4 + 1] = totalg / toalnum;
+                pixelData[p * 4 + 2] = totalb / toalnum;
+
+
+            }
+        }
+        imageContext.putImageData(imageData, 0, 0, 0, 0, imageCanvas.width, imageCanvas.height);
+    }
+
+    //马赛克滤镜
+    function mosaicFilter(orignCanvas, imageCanvas, size = 16) {
+
+        let
+            imageContext = imageCanvas.getContext('2d'),
+            orginContext = orignCanvas.getContext('2d');
+
+        let imageData = orginContext.getImageData(0, 0, orignCanvas.width, orignCanvas.height),
+            pixelData = imageData.data,
+            tempImageData = orginContext.getImageData(0, 0, orignCanvas.width, orignCanvas.height),
+            tmpPixelData = tempImageData.data;
+
+        let totalnum = size * size;
+
+        for (let i = 0; i < orignCanvas.height; i += size)
+            for (let j = 0; j < orignCanvas.width; j += size) {
+
+                let totalr = totalg = totalb = 0;
+                for (let dx = 0; dx < size; dx++)
+                    for (let dy = 0; dy < size; dy++) {
+
+                        let x = i + dx, y = j + dy;
+                        let p = x * orignCanvas.width + y;
+                        totalr += tmpPixelData[p * 4 + 0];
+                        totalg += tmpPixelData[p * 4 + 1];
+                        totalb += tmpPixelData[p * 4 + 2];
+                    }
+
+                let p = i * orignCanvas.width + j,
+                    resr = totalr / totalnum,
+                    resg = totalg / totalnum,
+                    resb = totalb / totalnum;
+
+                for (let dx = 0; dx < size; dx++)
+                    for (let dy = 0; dy < size; dy++) {
+                        let x = i + dx, y = j + dy;
+                        let p = x * orignCanvas.width + y;
+                        pixelData[p * 4 + 0] = resr;
+                        pixelData[p * 4 + 1] = resg;
+                        pixelData[p * 4 + 2] = resb;
+                    }
+            }
+
+        imageContext.putImageData(imageData, 0, 0, 0, 0, imageCanvas.width, imageCanvas.height);
+    }
+</script>
+</html>

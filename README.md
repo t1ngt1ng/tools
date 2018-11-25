@@ -22,4 +22,8 @@
  米字格可写字，仿照慕课网学写一个字，不使用jquery，参考思路，代码不完全一致
  
  - imageScale.html  
- 图片缩放，参考慕课思路
+ 图片缩放，参考慕课思路  
+ 
+ - picFilter.html  
+ 图片滤镜效果，参考慕课思路，添加缩略图效果
+ 此文件要起服务，live-server或者http-server都可以，因为canvas.toDataURL()离线状态会报错
