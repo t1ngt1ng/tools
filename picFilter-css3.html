@@ -144,6 +144,7 @@
         //除了角度和模糊的值，其他都是百分比，所以范围都设置为0-100
         keyWord === 'hue-rotate' ? max = 360 : null;
         keyWord === 'blur' ? max = 20 : null;//模糊没有上限，这里最大给了20
+        keyWord === 'contrast' ? max = 400 : null;//contrast
 
         rangeCon.setAttribute('min', min);
         rangeCon.setAttribute('max', max);
@@ -166,6 +167,9 @@
             case 'invert':
                 obj = {initNumber: '100', unit: '%'};
                 break;
+            case 'contrast':
+                obj = {initNumber: '150', unit: '%'};
+                break;
             default:
                 obj = {initNumber: '50', unit: '%'};
                 break;
@@ -176,7 +180,7 @@
     //获取介绍内容信息
     function getInfoContent(key) {
         let infoContent;
-        　//原属性带横杠，为了做key，infos中改成了驼峰
+        //原属性带横杠，为了做key，infos中改成了驼峰
         if ((key === 'drop-shadow') || (key === 'hue-rotate')) {
             key === 'drop-shadow' ? infoContent = infos.dropShadow : infoContent = infos.hueRotate;
         } else {
