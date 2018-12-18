@@ -27,3 +27,7 @@
  - picFilter.html  
  图片滤镜效果，参考慕课思路，添加缩略图效果
  此文件要起服务，live-server或者http-server都可以，因为canvas.toDataURL()离线状态会报错
+ 
+  - picFilter-css3.html  
+  图片滤镜效果，此处使用css3的filter  
+  显示有filter效果的简短介绍，赋值和滑杆调整滤镜数值 

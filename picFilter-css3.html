@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #container {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        img {
+            border: 1px solid black;
+            margin: 20px;
+            float: left;
+            width: 600px;
+            height: 400px;
+        }
+
+        .btn {
+            /*width: px;*/
+            height: 20px;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid black;
+            float: left;
+            border-radius: 10px;
+            background-color: brown;
+            color: #fff;
+        }
+
+        .info {
+            width: 800px;
+
+            margin: 20px auto;
+
+        }
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <img src="2.jpg" alt="">
+    <img src="2.jpg" alt="" id="showImage">
+    <div id="control">
+        <div class="info" id="info">
+            Blur<br/>
+            <span id="showNum">0</span>
+            <br/>
+            给图像设置高斯模糊。"radius"一值设定高斯函数的标准差，或者是屏幕上以多少像素融在一起， 所以值越大越模糊；
+
+            如果没有设定值，则默认是0；这个参数可设置css长度值，但不接受百分比值。
+        </div>
+        <div id="range">
+            <input type="range" value="0" min="0" max="20" id="rangeCon">
+        </div>
+
+    </div>
+    <div id="btns">
+        <div class="btn" onclick="getFilter('blur')">blur</div>
+        <div class="btn" onclick="getFilter('brightness')">brightness</div>
+        <div class="btn" onclick="getFilter('contrast')">contrast</div>
+        <div class="btn" onclick="getFilter('drop-shadow')">drop-shadow</div>
+        <div class="btn" onclick="getFilter('grayscale')">grayscale</div>
+        <div class="btn" onclick="getFilter('hue-rotate')">hue-rotate</div>
+        <div class="btn" onclick="getFilter('invert')">invert</div>
+        <div class="btn" onclick="getFilter('opacity')">opacity</div>
+        <div class="btn" onclick="getFilter('saturate')">saturate</div>
+        <div class="btn" onclick="getFilter('sepia')">sepia</div>
+    </div>
+</div>
+
+
+<script>
+    let infos = {
+        blur: "给图像设置高斯模糊。\"radius\"一值设定高斯函数的标准差，或者是屏幕上以多少像素融在一起， 所以值越大越模糊；\n" +
+        "如果没有设定值，则默认是0；这个参数可设置css长度值，但不接受百分比值。",
+        brightness: "给图片应用一种线性乘法，使其看起来更亮或更暗。如果值是0%，图像会全黑。值是100%，则图像无变化。其他的值对应线性乘数效果。值超过100%也是可以的，图像会比原来更亮。如果没有设定值，默认是1。",
+        contrast: "调整图像的对比度。值是0%的话，图像会全黑。值是100%，图像不变。值可以超过100%，意味着会运用更低的对比。若没有设置值，默认是1。",
+        dropShadow: "给图像设置一个阴影效果。阴影是合成在图像下面，可以有模糊度的，可以以特定颜色画出的遮罩图的偏移版本。 函数接受<shadow>(在CSS3背景中定义)类型的值，除了\"inset\"关键字是不允许的。该函数与已有的box-shadow box-shadow属性很相似；不同之处在于，通过滤镜，一些浏览器为了更好的性能会提供硬件加速。",
+        grayscale: "将图像转换为灰度图像。值定义转换的比例。值为100%则完全转为灰度图像，值为0%图像无变化。值在0%到100%之间，则是效果的线性乘子。若未设置，值默认是0；",
+        hueRotate: "\t\n" +
+        "给图像应用色相旋转。\"angle\"一值设定图像会被调整的色环角度值。值为0deg，则图像无变化。若值未设置，默认值是0deg。该值虽然没有最大值，超过360deg的值相当于又绕一圈。",
+        invert: "反转输入图像。值定义转换的比例。100%的价值是完全反转。值为0%则图像无变化。值在0%和100%之间，则是效果的线性乘子。 若值未设置，值默认是0。",
+        opacity: "化图像的透明程度。值定义转换的比例。值为0%则是完全透明，值为100%则图像无变化。值在0%和100%之间，则是效果的线性乘子，也相当于图像样本乘以数量。 若值未设置，值默认是1。该函数与已有的opacity属性很相似，不同之处在于通过filter，一些浏览器为了提升性能会提供硬件加速。",
+        saturate: "转换图像饱和度。值定义转换的比例。值为0%则是完全不饱和，值为100%则图像无变化。其他值，则是效果的线性乘子。超过100%的值是允许的，则有更高的饱和度。 若值未设置，值默认是1。",
+        sepia: "\t\n" +
+        "将图像转换为深褐色。值定义转换的比例。值为100%则完全是深褐色的，值为0%图像无变化。值在0%到100%之间，则是效果的线性乘子。若未设置，值默认是0；"
+    }
+    let showImage = document.getElementById('showImage'),//滤镜效果图片
+        info = document.getElementById('info'),//filter属性简介
+        rangeCon = document.getElementById('rangeCon'),//range控件
+
+        keyWord = 'blur';//存储选择效果，默认为blur
+
+    window.onload = function () {
+        //点击range控件时注册事件
+        let downFlag = false;//是否在控件上点击鼠标
+        rangeCon.addEventListener('mousedown', function () {
+            downFlag = true;
+        }, false);
+        rangeCon.addEventListener('mouseup', function () {
+            downFlag = false;
+        }, false);
+
+        rangeCon.addEventListener('mousemove', function (e) {
+            showNum = document.getElementById('showNum');//range控件选取的数字显示span
+
+            if (downFlag) {
+                let numObj = numberArg(keyWord);//获取初始化信息和range数值单位
+                showNum.innerText = (e.target.value || 0) + numObj.unit;//显示range数值+单位
+                showImage.style.filter = keyWord + '(' + ( e.target.value || 0) + numObj.unit + ')';//修改滤镜效果
+            }
+        }, false)
+    };
+
+    //按钮触发滤镜效果
+    function getFilter(key) {
+        keyWord = key;
+        let infoContent = getInfoContent(key);//获取显示文字内容
+        let numObj = numberArg(key);//获取初始值和单位
+        let initNumber = numObj.initNumber + numObj.unit;//组合数值和单位，例；10px
+
+        //介绍内容
+        info.innerHTML = key + '<br/><span id="showNum">' + initNumber + '</span><br/>' + infoContent;
+        //修改滤镜效果
+        showImage.style.filter = key + '(' + ( initNumber || 0) + ')';
+        setRangeCss(numObj);//设置range的max、min、取值等相关
+    }
+
+    //设置range的max、min、取值等相关
+    function setRangeCss(numObj) {
+
+        //drop-shadow因为不是单一值参数，所以不显示range
+        if (keyWord === 'drop-shadow') {
+            rangeCon.style.display = 'none';
+        } else {
+            rangeCon.style.display = 'inline-block';
+
+        }
+
+        let min = 0, max = 100;
+
+        //除了角度和模糊的值，其他都是百分比，所以范围都设置为0-100
+        keyWord === 'hue-rotate' ? max = 360 : null;
+        keyWord === 'blur' ? max = 20 : null;//模糊没有上限，这里最大给了20
+
+        rangeCon.setAttribute('min', min);
+        rangeCon.setAttribute('max', max);
+        rangeCon.value = numObj.initNumber;//此处调整range的值
+    }
+
+    //返回初始值和单位
+    function numberArg(key) {
+        let obj;
+        switch (key) {
+            case 'blur':
+                obj = {initNumber: '10', unit: 'px'};
+                break;
+            case 'drop-shadow':
+                obj = {initNumber: '10px 10px 2px #aaa', unit: ''};
+                break;
+            case 'hue-rotate':
+                obj = {initNumber: '90', unit: 'deg'};
+                break;
+            case 'invert':
+                obj = {initNumber: '100', unit: '%'};
+                break;
+            default:
+                obj = {initNumber: '50', unit: '%'};
+                break;
+        }
+        return obj;
+    }
+
+    //获取介绍内容信息
+    function getInfoContent(key) {
+        let infoContent;
+        　//原属性带横杠，为了做key，infos中改成了驼峰
+        if ((key === 'drop-shadow') || (key === 'hue-rotate')) {
+            key === 'drop-shadow' ? infoContent = infos.dropShadow : infoContent = infos.hueRotate;
+        } else {
+            infoContent = infos[key]
+        }
+        return infoContent;
+    }
+</script>
+</body>
+</html>
