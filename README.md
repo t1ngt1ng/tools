@@ -31,3 +31,10 @@
   - picFilter-css3.html  
   图片滤镜效果，此处使用css3的filter  
   显示有filter效果的简短介绍，赋值和滑杆调整滤镜数值 
+  
+  nodejs  
+  - getLineNumber.js  
+  计算传入文档的行数   
+  
+  - getLength.js  
+  计算传入文档的长度，中文算1，一个英文字符算1，标点空格都计入,回车算1
