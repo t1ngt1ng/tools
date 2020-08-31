@@ -31,6 +31,10 @@
   - picFilter-css3.html  
   图片滤镜效果，此处使用css3的filter  
   显示有filter效果的简短介绍，赋值和滑杆调整滤镜数值 
+
+  - pressImageUpload.html
+  上传图片，将图片压缩成想要的大小传给服务器
+  只有压缩过程，没有传给服务器过程
   
   nodejs  
   - getLineNumber.js  
